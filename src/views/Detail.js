@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect } from 'react';
 import { Link, useParams, useHistory } from 'react-router-dom';
 import styled from 'styled-components';
-import ProfilesContext from '../profiles.store';
+import ProfilesContext from '../profilesContext';
 
 
 const Wrapper = styled.div`
@@ -80,7 +80,6 @@ const DetailView = () => {
     }
 
     setProfile(found);
-    console.log(found);
     window.scrollTo(0, 0);
   }, [profile, findProfileByUsername, username, history, allProfiles]);
 

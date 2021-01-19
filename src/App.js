@@ -9,7 +9,7 @@ import styled from 'styled-components';
 import MainView from './views/Main';
 import DetailView from './views/Detail';
 import SearchBar from './components/SearchBar';
-import ProfilesContext, { profilesState } from './profiles.store';
+import ProfilesContext, { profilesState } from './profilesContext';
 
 const ContentWrapper = styled.div`
   height: calc(100vh - 120px);

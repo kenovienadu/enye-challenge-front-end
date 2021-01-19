@@ -3,7 +3,7 @@ import { observer } from 'mobx-react-lite';
 import styled from 'styled-components';
 
 import ProfileCard from '../components/ProfileCard';
-import ProfilesContext from '../profiles.store';
+import ProfilesContext from '../profilesContext';
 import LoadingSkeleton from '../components/Loader';
 import NoProfilesComponent from '../components/NoProfilesComponent';
 
@@ -77,15 +77,19 @@ const MainView = observer(() => {
   return (
     <Wrapper>
       <ProfileCardsWrapper>
-        {allProfiles.length && !filteredProfiles.length && NoProfilesComponent}
-        {!allProfiles.length && <LoadingSkeleton />}
-        {allProfiles.length && filteredProfiles.length && <ResultsDiv>
+        {allProfiles.length && !filteredProfiles.length ? NoProfilesComponent : null}
+        {!allProfiles.length ? <LoadingSkeleton /> : null}
+        {allProfiles.length && filteredProfiles.length ? <ResultsDiv>
           {filteredProfiles.length} results found
-          </ResultsDiv>}
-        {filteredProfiles.length && filteredProfiles.slice(state.startIndex, state.startIndex + displayedCount).map((profile, index) => <ProfileCard position={state.startIndex === 0 ? state.startIndex + index + 1 : state.startIndex + index + 2} profile={profile} key={index}></ProfileCard>)}
+          </ResultsDiv> : null}
+        {filteredProfiles.length ?
+          filteredProfiles.slice(state.startIndex, state.startIndex + displayedCount)
+            .map((profile, index) => <ProfileCard position={state.startIndex === 0 ? state.startIndex + index + 1 : state.startIndex + index + 2} profile={profile} key={index}></ProfileCard>)
+          : null
+        }
       </ProfileCardsWrapper>
 
-      {filteredProfiles.length && <PaginationWrapper>
+      {filteredProfiles.length ? <PaginationWrapper>
         <div>
           <h4>Page {state.currentPage} / {pageCount}</h4>
         </div>
@@ -93,7 +97,7 @@ const MainView = observer(() => {
           <button onClick={() => gotoPreviousPage()}>Prev</button>
           <button onClick={() => gotoNextPage()}>Next</button>
         </div>
-      </PaginationWrapper>}
+      </PaginationWrapper> : null}
     </Wrapper>
   )
 }
