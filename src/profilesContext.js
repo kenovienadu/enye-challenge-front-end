@@ -11,7 +11,8 @@ class ProfilesState {
     female: true,
     otherGender: true,
     mastercard: true,
-    visa: true
+    visa: true,
+    otherCards: true
   };
 
   constructor() {
@@ -19,9 +20,8 @@ class ProfilesState {
   }
 
   search(value) {
-    if (!value) { }
+    if (value) this.searchQuery = value.toLowerCase();
 
-    this.searchQuery = value.toLowerCase();
     this.applyFilters();
   }
 
@@ -44,14 +44,35 @@ class ProfilesState {
     const filterKeys = Object.keys(this.filters);
 
     filterKeys.forEach(key => {
-      if (this.filters[key]) {
+      if (this.filters[key] && (key !== 'otherGender')) {
         filtersArray.push(key);
       }
     })
 
-    const filtered = this.allProfiles.filter(profile => {
-      return (filtersArray.includes(profile.Gender.toLowerCase()) && filtersArray.includes(profile.CreditCardType.toLowerCase()));
-    })
+    if (this.filters.otherGender) {
+      filtersArray.push('prefer to skip');
+    }
+
+    const cardTypes = filtersArray.filter(filterItem => ['mastercard', 'visa', 'otherCards'].includes(filterItem));
+
+    let filtered = this.allProfiles.filter(profile => filtersArray.includes(profile.Gender.toLowerCase()));
+
+    filtered = filtered.filter(profile => {
+      const otherCardsOnly = (cardTypes.length === 1) && (cardTypes[0] === 'otherCards');
+      const creditCardType = profile.CreditCardType.toLowerCase();
+
+      if (otherCardsOnly) {
+        return !['mastercard', 'visa'].includes(creditCardType);
+      }
+
+      // If otherCards allowed, add card type to the list of cardTypes allowed
+      if (cardTypes.includes('otherCards') && !cardTypes.includes(creditCardType)) {
+        cardTypes.push(creditCardType);
+      }
+
+      return cardTypes.includes(creditCardType)
+    });
+
 
     if (!this.searchQuery) {
       return this.filteredProfiles = [...filtered];

@@ -1,7 +1,16 @@
 import styled from 'styled-components';
 import { useState, useContext } from 'react';
 import { observer } from 'mobx-react-lite';
-import ProfilesContext from '../profiles.store';
+
+import ProfilesContext from '../profilesContext';
+
+const ErrorMessage = styled.p`
+  background: #ff000078;
+  color: black;
+  padding: 0.5em;
+  border-radius: 5px;
+  margin-bottom: 0.7em;
+`;
 
 const Wrapper = styled.div`
   position: fixed;
@@ -78,7 +87,8 @@ const Wrapper = styled.div`
       width: 100%;
       border: none;
       margin: 1em 0;
-      font-weight: 500
+      font-weight: 500;
+      cursor: pointer
     }
 
     .clear{
@@ -91,22 +101,42 @@ const Wrapper = styled.div`
 `;
 
 const FilterForm = observer(({ toggleForm }) => {
-  const profilesContext = useContext(ProfilesContext);
 
+  const profilesContext = useContext(ProfilesContext);
   const [filterState, setFilterState] = useState(profilesContext.filters);
+  const [errorMessage, setErrorMessage] = useState();
 
 
   const setvalue = (key) => {
+    setErrorMessage(null);
     profilesContext.toggleFilter(key);
     setFilterState(profilesContext.filters);
   }
 
+  const validateFilters = () => {
+    const { filters } = profilesContext;
+    let errorMessage = null
+
+    if (!filters.male && !filters.female && !filters.otherGender) {
+      errorMessage = 'Please select a Gender';
+    }
+
+    if (!filters.mastercard && !filters.visa && !filters.otherCards) {
+      errorMessage = 'Please select a Card Type';
+    }
+
+    return errorMessage;
+  }
+
   const updateFilters = () => {
+    const errorMessage = validateFilters();
+
+    if (errorMessage) return setErrorMessage(errorMessage);
 
     profilesContext.applyFilters();
 
+    // on mobile, hide the filterform after submission
     if (window.innerWidth >= 700) return;
-
     toggleForm();
   }
 
@@ -115,18 +145,23 @@ const FilterForm = observer(({ toggleForm }) => {
     <Wrapper as="section">
       <div className="backdrop" onClick={() => toggleForm()}></div>
       <form onSubmit={(e) => e.preventDefault()}>
+        {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
         <h4>Gender
           <button className="mobile-only" onClick={() => toggleForm()}>
             <i className="fas fa-times"></i>
           </button>
         </h4>
         <div className="checkbox-wrapper">
-          <input type="checkbox" checked={filterState.male} onChange={(e) => setvalue('male')}></input>
+          <input type="checkbox" checked={filterState.male} onChange={() => setvalue('male')}></input>
           <label>Male</label>
         </div>
         <div className="checkbox-wrapper">
-          <input type="checkbox" checked={filterState.female} onChange={(e) => setvalue('female')}></input>
+          <input type="checkbox" checked={filterState.female} onChange={() => setvalue('female')}></input>
           <label>Female</label>
+        </div>
+        <div className="checkbox-wrapper">
+          <input type="checkbox" checked={filterState.otherGender} onChange={() => setvalue('otherGender')}></input>
+          <label>Prefer To Skip</label>
         </div>
 
 
@@ -134,12 +169,16 @@ const FilterForm = observer(({ toggleForm }) => {
 
         <h4>Credit Card Type</h4>
         <div className="checkbox-wrapper">
-          <input type="checkbox" checked={filterState.mastercard} onChange={(e) => setvalue('mastercard')}></input>
+          <input type="checkbox" checked={filterState.mastercard} onChange={() => setvalue('mastercard')}></input>
           <label>MasterCard</label>
         </div>
         <div className="checkbox-wrapper">
-          <input type="checkbox" checked={filterState.visa} onChange={(e) => setvalue('visa')}></input>
+          <input type="checkbox" checked={filterState.visa} onChange={() => setvalue('visa')}></input>
           <label>Visa</label>
+        </div>
+        <div className="checkbox-wrapper">
+          <input type="checkbox" checked={filterState.otherCards} onChange={() => setvalue('otherCards')}></input>
+          <label>Other Cards</label>
         </div>
 
         <br></br>

@@ -1,10 +1,10 @@
 import { useContext, useState, useEffect } from 'react';
-import styled from 'styled-components';
 import { useHistory } from "react-router-dom";
 import { observer } from 'mobx-react-lite';
+import styled from 'styled-components';
 
 import FilterForm from './FilterForm';
-import ProfilesContext from '../profiles.store';
+import ProfilesContext from '../profilesContext';
 
 const SearchDiv = styled.div`
   background: white;
@@ -66,6 +66,7 @@ const SearchBar = observer(() => {
   const [searchValue, setSearchValue] = useState('');
   const [showFilterForm, setShowFilterForm] = useState(window.innerWidth > 700);
 
+  // show the filter form on larger devices
   const handleWindowResize = () => {
     window.addEventListener('resize', () => {
       return window.innerWidth > 700 ? setShowFilterForm(true) : setShowFilterForm(false)
@@ -76,7 +77,6 @@ const SearchBar = observer(() => {
 
   const gotohome = () => {
     if (history.location === '/') return;
-
     history.push('/');
   }
 
@@ -94,14 +94,13 @@ const SearchBar = observer(() => {
     gotohome();
   }
 
-  const toggleFilterForm = () => {
-    setShowFilterForm(prevState => !prevState);
-  }
+  const toggleFilterForm = () => setShowFilterForm(prevState => !prevState);
+
 
   return (
     <SearchDiv>
       <div>
-        <input type="search" onChange={handleInputChange} />
+        <input placeholder="Search By Name" onChange={handleInputChange} />
         <button onClick={handleSubmit}>
           <i className="fas fa-search"></i>
         </button>
@@ -112,7 +111,7 @@ const SearchBar = observer(() => {
           </button>
         </div>
       </div>
-      {profilesContext.allProfiles.length && showFilterForm && <FilterForm toggleForm={toggleFilterForm} />}
+      {profilesContext.count && showFilterForm ? <FilterForm toggleForm={toggleFilterForm} /> : null}
     </SearchDiv>
   );
 });
